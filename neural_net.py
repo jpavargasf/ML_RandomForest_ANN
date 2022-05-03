@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Mon May  2 11:51:49 2022
+
+@author: User
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Autor: João Paulo Vargas da Fonseca
 Data: 01/05/2022
 Trabalho desenvolvido para a disciplina de Sistemas Inteligentes do Curso
@@ -8,7 +15,6 @@ de Engenharia Eletrônica da Universidade Tecnológica Federal do Paraná
 Comentários:
 """
 
-random_forest_test_size = 0.3
 
 
 import pandas as pd
@@ -43,26 +49,29 @@ discretized_data,sqr_error,data_classes,number_of_elem = data_manipulation.dicre
 # a1,a2 = data_manipulation.split_data_index(data_classes,10,0.3)
 # from sklearn.model_selection import train_test_split
 
-rin_train,rout_train,rin_test,rout_test = data_manipulation.split_data(robot_input,data_classes,discretization_values.size,0.7)
+# rin_train,rout_train,rin_test,rout_test = data_manipulation.split_data(robot_input,data_classes,discretization_values.size,0.7)
 
 #comparar com a outra função já pronta
-# from sklearn.model_selection import train_test_split
-# rin_train,rin_test,rout_train,rout_test = train_test_split(robot_input,data_classes,test_size = 0.3)
+from sklearn.model_selection import train_test_split
+rin_train,rin_test,rout_train,rout_test = train_test_split(robot_input,v,test_size = 0.3)
 
 
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPRegressor
 
-rf_n_trees = 100
-rf_n_max_categories = 5
-rf_criterion = "entropy"
-rf_max_samples = None#int(rin_train.shape[0]/rf_n_max_categories)
-rf_min_samples_split = 2#3
+nn = MLPRegressor(solver='adam',activation='logistic',
+                                    alpha = 0.00001,learning_rate = 'constant',
+                                    learning_rate_init=0.1,max_iter=10000,
+                                    hidden_layer_sizes = (7))
 
-random_forest_linear_velocity = RandomForestClassifier(n_estimators = rf_n_trees,criterion = rf_criterion,min_samples_split=rf_min_samples_split,max_features=rf_n_max_categories,max_samples = rf_max_samples)
+nn.fit(rin_train,rout_train)
 
-random_forest_linear_velocity.fit(rin_train,rout_train)
+rout_pred = nn.predict(rin_test)
 
-robot_output_prediction = random_forest_linear_velocity.predict(rin_test)
 
 from sklearn import metrics
-print(metrics.accuracy_score(rout_test, robot_output_prediction))
+print(metrics.mean_squared_error(rout_test, rout_pred,squared=False))
+
+# data_classes1 = data_manipulation.dicretize_data(rout_test,discretization_values)[2]
+# data_classes2 = data_manipulation.dicretize_data(rout_pred,discretization_values)[2]
+
+# print(metrics.accuracy_score(data_classes1, data_classes2))
