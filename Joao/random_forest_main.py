@@ -7,14 +7,93 @@ de Engenharia Eletrônica da Universidade Tecnológica Federal do Paraná
 
 Comentários:
 """
-
-random_forest_test_size = 0.3
-
-
 import pandas as pd
+import numpy as np
+import data_manipulation
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import metrics
+
+
+"""
+rf_in: dataframe
+    input dos  da árvore (xtrain + xtest)
+rf_out: dataframe
+    output da árvore (ytrain + ytest)
+discretization_values: array de float
+    classes nas quais rf_out deve se ajustar
+train_size: float [0,1]
+    % dados que irão ser de treino
+rf_n_trees: inteiro
+    número de árvores
+rf_n_max_categories: inteiro
+    número máximo de categorias por árvore
+rf_criterion: string
+    escolhe o tipo de árvore
+    "gini"
+    "entropy" ->ID3
+rf_max_samples: inteiro ou None ou float
+    máximo número de amostras por árvore
+rf_min_samples_split: inteiro
+    mínimo número de amostras em uma folha requerida para se dividir
+n_iterations: inteiro
+    número de loops que o programa rodará
+d_form_a: float
+    usado na fórmula de transformação de classe para real
+    f(classe) = classe*d_form_a + d_form_b
+d_form_b:
+"""
+def robot_rf(rf_in,rf_out, discretization_values, train_size, rf_n_trees,
+             rf_n_max_categories,rf_criterion,rf_max_samples,
+             rf_min_samples_split,n_iterations,d_form_a,d_form_b):
+    
+    rf_out_np = rf_out.to_numpy()
+    
+    discretized_data,sqr_error,data_classes,number_of_elem = data_manipulation.dicretize_data(
+        rf_out_np,discretization_values)
+
+    rf = RandomForestClassifier(n_estimators = rf_n_trees,
+                                criterion = rf_criterion,
+                                min_samples_split=rf_min_samples_split,
+                                max_features=rf_n_max_categories,
+                                max_samples = rf_max_samples)
+    
+    mean_accuracy = 0
+    mean_rmse = 0
+    
+    for i in range(n_iterations):
+        rin_train,rout_train,rin_test,rout_test = data_manipulation.split_data(
+            rf_in,data_classes,discretization_values.size,train_size)
+        
+        #sobrescreve o fit
+        rf.fit(rin_train,rout_train)
+        
+        rf_out_pred = rf.predict(rin_test)
+        
+        ma = metrics.accuracy_score(rout_test, rf_out_pred)
+        
+        mean_accuracy += ma
+        
+        #rmse = 0
+        #calcula o rmse    
+        
+        d_rout_pred = [j*d_form_a + d_form_b for j in rf_out_pred]
+        
+        test_indexes = list(rin_test.index)
+        real_rout_test = rf_out.iloc[test_indexes]
+        rmse = metrics.mean_squared_error(real_rout_test,d_rout_pred,squared = False)
+        mean_rmse += rmse
+    
+        print("Teste " + str(i) + "_Precisão = " + str(ma) + "_RMSE = " + str(rmse))
+    
+    mean_accuracy = mean_accuracy/n_iterations
+    mean_rmse = mean_rmse/n_iterations
+    
+    return mean_accuracy,mean_rmse
 
 data = pd.read_csv("DATASET_MobileRobotNav_FabroGustavo.csv")
-# data = data.loc[data[data.columns[5]]==1]
+
+#se quiser separar 1 e -1, descomentar linha abaixo
+#data = data.loc[data[data.columns[5]]==1]
 
 #separa as variáveis entre as de entrada (input) e saída (output) do robô
 robot_input = data[data.columns[0:6]]
@@ -24,45 +103,53 @@ robot_input = data[data.columns[0:6]]
 #para utilizar o mesmo conjunto de teste para ambas saídas.
 robot_output = data[data.columns[6:8]]
 
-import numpy as np
-
-v = robot_output[robot_output.columns[0]]
-v = v.to_numpy()
-
 #separar entre grupos de [0.05,0.15,0.25,0.35,0.45,0.55,0.65,0.75,0.85,0.95]
-discretization_values = np.arange(0.05,1.05,0.1)
+discret_values = np.arange(0.05,1.05,0.1)
 
-#separar as classes entre treino e teste
+print("\nTeste de velocidade linear RANDOM FOREST\n")
 
-# X_train, X_test, y_train, y_test = train_test_split(robot_input, , test_size = 0.3) #test_size = 0.3 70% training and 30% test
+accuracy_velocity,rmse_velocity = robot_rf(
+    rf_in = robot_input,
+    rf_out = robot_output[robot_output.columns[0]],
+    discretization_values = discret_values,
+    train_size = 0.7,
+    rf_n_trees = 100,                     
+    rf_n_max_categories = 5,
+    rf_criterion = "entropy",
+    rf_max_samples = None,
+    rf_min_samples_split = 2,
+    n_iterations = 10,
+    d_form_a = 0.1,
+    d_form_b = 0.05)
 
-import data_manipulation
+print("\nMédia Precisão = " + str(accuracy_velocity) + " RMSE = " + str(rmse_velocity))
 
-discretized_data,sqr_error,data_classes,number_of_elem = data_manipulation.dicretize_data(v,discretization_values)
+"""-------------------------------------------------------------------------"""
+""""necessita de ajustes para a velocidade angular (ou não, já achei o bug)"""
+#10 classes - aumenta a precisão de classe, mas também aumenta rmse
+# discret_values2 = np.arange(-1,1.1,0.2)
+# df_a = 0.2
+# df_b = -1
 
-# a1,a2 = data_manipulation.split_data_index(data_classes,10,0.3)
-# from sklearn.model_selection import train_test_split
+#20 classes
+discret_values2 = np.arange(-0.9,1.1,0.1)
+df_a = 0.1
+df_b = -0.9
 
-rin_train,rout_train,rin_test,rout_test = data_manipulation.split_data(robot_input,data_classes,discretization_values.size,0.7)
+print("\nTeste de velocidade angular RANDOM FOREST\n")
 
-#comparar com a outra função já pronta
-# from sklearn.model_selection import train_test_split
-# rin_train,rin_test,rout_train,rout_test = train_test_split(robot_input,data_classes,test_size = 0.3)
+accuracy_velocity,rmse_velocity = robot_rf(
+    rf_in = robot_input,
+    rf_out = robot_output[robot_output.columns[1]],
+    discretization_values = discret_values2,
+    train_size = 0.7,
+    rf_n_trees = 100,                     
+    rf_n_max_categories = 5,
+    rf_criterion = "entropy",
+    rf_max_samples = None,
+    rf_min_samples_split = 2,
+    n_iterations = 10,
+    d_form_a = df_a,
+    d_form_b = df_b)
 
-
-from sklearn.ensemble import RandomForestClassifier
-
-rf_n_trees = 100
-rf_n_max_categories = 5
-rf_criterion = "entropy"
-rf_max_samples = None#int(rin_train.shape[0]/rf_n_max_categories)
-rf_min_samples_split = 2#3
-
-random_forest_linear_velocity = RandomForestClassifier(n_estimators = rf_n_trees,criterion = rf_criterion,min_samples_split=rf_min_samples_split,max_features=rf_n_max_categories,max_samples = rf_max_samples)
-
-random_forest_linear_velocity.fit(rin_train,rout_train)
-
-robot_output_prediction = random_forest_linear_velocity.predict(rin_test)
-
-from sklearn import metrics
-print(metrics.accuracy_score(rout_test, robot_output_prediction))
+print("\nMédia Precisão = " + str(accuracy_velocity) + " RMSE = " + str(rmse_velocity))

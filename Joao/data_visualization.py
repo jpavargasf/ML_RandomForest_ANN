@@ -71,24 +71,24 @@ print(sum(sqr_error)/len(sqr_error))
 # a1,a2 = data_manipulation.split_data_index(data_classes,10,0.3)
 # from sklearn.model_selection import train_test_split
 
-rin_train,rout_train,rin_test,rout_test = data_manipulation.split_data(robot_input,data_classes,a.size,0.7)
+# rin_train,rout_train,rin_test,rout_test = data_manipulation.split_data(robot_input,data_classes,a.size,0.7)
 
 
-from sklearn.ensemble import RandomForestClassifier
+# from sklearn.ensemble import RandomForestClassifier
 
-rf_n_trees = 100
-rf_n_max_categories = 4
-rf_criterion = "entropy"
-rf_max_samples = None#int(rin_train.shape[0]/rf_n_max_categories)
-rf_min_samples_split = 2#3
+# rf_n_trees = 100
+# rf_n_max_categories = 4
+# rf_criterion = "entropy"
+# rf_max_samples = None#int(rin_train.shape[0]/rf_n_max_categories)
+# rf_min_samples_split = 2#3
 
-random_forest_linear_velocity = RandomForestClassifier(n_estimators = rf_n_trees,criterion = rf_criterion,min_samples_split=rf_min_samples_split,max_features=rf_n_max_categories,max_samples = rf_max_samples)
+# random_forest_linear_velocity = RandomForestClassifier(n_estimators = rf_n_trees,criterion = rf_criterion,min_samples_split=rf_min_samples_split,max_features=rf_n_max_categories,max_samples = rf_max_samples)
 
-random_forest_linear_velocity.fit(rin_train,rout_train)
+# random_forest_linear_velocity.fit(rin_train,rout_train)
 
-robot_output_prediction = random_forest_linear_velocity.predict(rin_test)
+# robot_output_prediction = random_forest_linear_velocity.predict(rin_test)
 
-from sklearn import metrics
-print(metrics.accuracy_score(rout_test, robot_output_prediction))
+# from sklearn import metrics
+# print(metrics.accuracy_score(rout_test, robot_output_prediction))
 
 
