@@ -6,8 +6,11 @@ import seaborn as sns
 
 #Leio os datasets e retiro o que preciso
 df= pd.read_csv('DATASET_MobileRobotNav.csv', sep=';')
+#Mostra a descrição do dataset (Média, Conta o número de tuplas, min, máx, etc)
 print(df.describe())
 #print(df)
+
+#Separa o modelo para fazer a 
 from sklearn.model_selection import train_test_split
 
 #labels = np.array(df['Out_Vel_Linear(m/s)','Out_Vel_Angula(rad/s)'])
@@ -35,23 +38,15 @@ mlp = MLPRegressor(hidden_layer_sizes=(8,8,8), activation='tanh', solver='adam',
 
 mlp.fit(features_train,labels_train)
 
-#Faz predições baseados nos testes
+#Faz os testes separados anteriormente
 predictions= mlp.predict(features_test)
+print("a" ,predictions, "B:" ,labels_test)
 #Calcula erros absolutos (mudar pra erro quadrático depois?)
 errors = abs(predictions - labels_test)
 print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
 
-
-#Lista de tuplas com a importância de cada atributo
-# importances = list(mlp.feature_importances_)
-# feature_importances = [(feature, round(importance, 2)) for feature, importance in zip(features_list, importances)]
-# # Sort the feature importances by most important first
-# feature_importances = sorted(feature_importances, key = lambda x: x[1], reverse = True)
-# #Printa a importância
-# [print('Variable: {:20} Importance: {}'.format(*pair)) for pair in feature_importances];
-
-#Calculate error
+#Calcula qtd de erros
 mape = 100 * (errors / labels_test)
-# Calculate and display accuracy
+#Mostra a precisão
 accuracy = 100 - np.mean(mape)
 print('Accuracy:', round(accuracy, 2), '%.')
