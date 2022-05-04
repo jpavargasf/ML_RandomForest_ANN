@@ -10,18 +10,21 @@ print(df.describe())
 #print(df)
 from sklearn.model_selection import train_test_split
 
-labels = np.array(df['Out_Vel_Linear(m/s)','Out_Vel_Angula(rad/s)'])
+#labels = np.array(df['Out_Vel_Linear(m/s)','Out_Vel_Angula(rad/s)'])
 features= df.drop(columns=['Out_Vel_Linear(m/s)','Out_Vel_Angula(rad/s)'], axis = 1)
 #print(features)
 
 
-#y1= df['Out_Vel_Linear(m/s)']
+labels= df['Out_Vel_Linear(m/s)']
 #y2= df['Out_Vel_Angula(rad/s)']
 
 features_list = list(features.columns)
 print(features_list)
 
 features_train, features_test, labels_train, labels_test= train_test_split(features,labels,test_size= 0.3)
+
+#Labels_test = lista com o número da tupla (ID) e seu valor na segunda coluna
+#print('labels _text = ', labels_test)
 
 print('Training Features Shape:', features_train.shape)
 print('Training Labels Shape:', labels_train.shape)
