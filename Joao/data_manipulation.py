@@ -246,9 +246,14 @@ def split_data_gap(data,percentage,gap):
     return set1_data,set2_data
     
            
+def mean_relative_error(data_test,data_true):
+    data_length = len(data_true)
+    mre = 0;
+    for i in range(data_length):
+        mre += np.abs((data_test[i] - data_true[i]) / data_true[i])
         
-        
-        
+    mre = mre/data_length
+    return mre    
         
         
         

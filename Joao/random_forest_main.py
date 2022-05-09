@@ -60,6 +60,7 @@ def robot_rf(rf_in,rf_out, discretization_values, train_size, rf_n_trees,
     
     mean_accuracy = 0
     mean_rmse = 0
+    mean_relative_error = 0
     
     for i in range(n_iterations):
         rin_train,rout_train,rin_test,rout_test = data_manipulation.split_data(
@@ -84,17 +85,21 @@ def robot_rf(rf_in,rf_out, discretization_values, train_size, rf_n_trees,
         #é true pq tem q vou tirar o quadrado depois
         rmse = metrics.mean_squared_error(real_rout_test,d_rout_pred,squared = True)
         mean_rmse += rmse
-    
-        print("Teste " + str(i) + "_Precisão = " + str(ma) + "_RMSE = " + str(math.sqrt(rmse)))
+        
+        # rel_error = metrics.mean_absolute_percentage_error(rout_test,rf_out_pred);
+        rel_error = data_manipulation.mean_relative_error(rout_test,rf_out_pred)
+        mean_relative_error += rel_error
+        
+        print("Teste " + str(i) + "_Precisão = " + str(ma) + "_RMSE = " + str(math.sqrt(rmse)) + "_Erro relativo = "+str(rel_error))
     
     mean_accuracy = mean_accuracy/n_iterations
     mean_rmse = math.sqrt(mean_rmse/n_iterations)
-    
-    return mean_accuracy,mean_rmse
+    mean_relative_error = mean_relative_error/n_iterations
+    return mean_accuracy,mean_rmse,mean_relative_error
 
 data = pd.read_csv("DATASET_MobileRobotNav_FabroGustavo.csv")
-data.drop_duplicates(keep='first', inplace=True)
-data = data.reset_index(drop=True)
+# data.drop_duplicates(keep='first', inplace=True)
+# data = data.reset_index(drop=True)
 #se quiser separar 1 e -1, descomentar linha abaixo
 #data = data.loc[data[data.columns[5]]==1]
 
@@ -111,7 +116,7 @@ discret_values = np.arange(0.05,1.05,0.1)
 
 print("\nTeste de velocidade linear RANDOM FOREST\n")
 
-accuracy_velocity,rmse_velocity = robot_rf(
+accuracy_velocity,rmse_velocity,rel_er = robot_rf(
     rf_in = robot_input,
     rf_out = robot_output[robot_output.columns[0]],
     discretization_values = discret_values,
@@ -125,7 +130,7 @@ accuracy_velocity,rmse_velocity = robot_rf(
     d_form_a = 0.1,
     d_form_b = 0.05)
 
-print("\nMédia Precisão = " + str(accuracy_velocity) + " RMSE = " + str(rmse_velocity))
+print("\nMédia Precisão = " + str(accuracy_velocity) + " RMSE = " + str(rmse_velocity) + "_rel_error = "+str(rel_er))
 
 """-------------------------------------------------------------------------"""
 """"necessita de ajustes para a velocidade angular (ou não, já achei o bug)"""
@@ -141,7 +146,7 @@ df_b = -0.9
 
 print("\nTeste de velocidade angular RANDOM FOREST\n")
 
-accuracy_velocity,rmse_velocity = robot_rf(
+accuracy_velocity,rmse_velocity,rel_er = robot_rf(
     rf_in = robot_input,
     rf_out = robot_output[robot_output.columns[1]],
     discretization_values = discret_values2,
@@ -155,4 +160,4 @@ accuracy_velocity,rmse_velocity = robot_rf(
     d_form_a = df_a,
     d_form_b = df_b)
 
-print("\nMédia Precisão = " + str(accuracy_velocity) + " RMSE = " + str(rmse_velocity))
+print("\nMédia Precisão = " + str(accuracy_velocity) + " RMSE = " + str(rmse_velocity) + "_rel_error = "+str(rel_er))
