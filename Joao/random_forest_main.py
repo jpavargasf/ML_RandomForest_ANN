@@ -7,6 +7,7 @@ de Engenharia Eletrônica da Universidade Tecnológica Federal do Paraná
 
 Comentários:
 """
+import math
 import pandas as pd
 import numpy as np
 import data_manipulation
@@ -80,18 +81,20 @@ def robot_rf(rf_in,rf_out, discretization_values, train_size, rf_n_trees,
         
         test_indexes = list(rin_test.index)
         real_rout_test = rf_out.iloc[test_indexes]
-        rmse = metrics.mean_squared_error(real_rout_test,d_rout_pred,squared = False)
+        #é true pq tem q vou tirar o quadrado depois
+        rmse = metrics.mean_squared_error(real_rout_test,d_rout_pred,squared = True)
         mean_rmse += rmse
     
-        print("Teste " + str(i) + "_Precisão = " + str(ma) + "_RMSE = " + str(rmse))
+        print("Teste " + str(i) + "_Precisão = " + str(ma) + "_RMSE = " + str(math.sqrt(rmse)))
     
     mean_accuracy = mean_accuracy/n_iterations
-    mean_rmse = mean_rmse/n_iterations
+    mean_rmse = math.sqrt(mean_rmse/n_iterations)
     
     return mean_accuracy,mean_rmse
 
 data = pd.read_csv("DATASET_MobileRobotNav_FabroGustavo.csv")
-
+data.drop_duplicates(keep='first', inplace=True)
+data = data.reset_index(drop=True)
 #se quiser separar 1 e -1, descomentar linha abaixo
 #data = data.loc[data[data.columns[5]]==1]
 

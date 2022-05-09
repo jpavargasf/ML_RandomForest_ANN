@@ -14,34 +14,26 @@ de Engenharia Eletrônica da Universidade Tecnológica Federal do Paraná
 Comentários:
     "../DATASET_MobileRobotNav_FabroGustavo"
 """
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import data_manipulation
 
 def module(n):
     if(n<0):
         return -n
     return n
 
-#array deve estar sortido e as classes também
-# def separate_into_classes(array,classes):
-    
-#para o random forest, terá que separar entre classes
-random_forest_test_size = 0.3
 
-
-import pandas as pd
 
 data = pd.read_csv("DATASET_MobileRobotNav_FabroGustavo.csv")
-
 
 #separa as variáveis entre as de entrada (input) e saída (output) do robô
 robot_input = data[data.columns[0:6]]
 
 #primeira coluna sobre velocidade linear e segunda sobre velocidade angular
-#   Melhor separar ambas depois que for separado entre treinamento e teste, 
-#para utilizar o mesmo conjunto de teste para ambas saídas.
 robot_output = data[data.columns[6:8]]
 
-import numpy as np
-import matplotlib.pyplot as plt
 
 v = robot_output[robot_output.columns[1]]
 v = v.to_numpy()
@@ -56,7 +48,7 @@ a = np.arange(-0.9,1.1,0.1)
 
 # X_train, X_test, y_train, y_test = train_test_split(robot_input, , test_size = 0.3) #test_size = 0.3 70% training and 30% test
 
-import data_manipulation
+
 
 discretized_data,sqr_error,data_classes,number_of_elem = data_manipulation.dicretize_data(v,a)
 
@@ -67,28 +59,36 @@ plt.stem(discretized_data)
 sqr_error.sort()
 
 plt.stem(sqr_error)
+plt.show()
 print(sum(sqr_error)/len(sqr_error))
-# a1,a2 = data_manipulation.split_data_index(data_classes,10,0.3)
-# from sklearn.model_selection import train_test_split
 
-# rin_train,rout_train,rin_test,rout_test = data_manipulation.split_data(robot_input,data_classes,a.size,0.7)
+"""----------------------Discretização das velocidades---------------------"""
 
+vlinear = robot_output[robot_output.columns[0]].to_numpy()
+vangular = robot_output[robot_output.columns[1]].to_numpy()
 
-# from sklearn.ensemble import RandomForestClassifier
+disc_vlinear_range = np.arange(0.05,1.05,0.1)
+disc_vangular_range = np.arange(-0.9,1.1,0.1)
+#disc_vangular = np.arange(-1,1.1,0.2)
 
-# rf_n_trees = 100
-# rf_n_max_categories = 4
-# rf_criterion = "entropy"
-# rf_max_samples = None#int(rin_train.shape[0]/rf_n_max_categories)
-# rf_min_samples_split = 2#3
-
-# random_forest_linear_velocity = RandomForestClassifier(n_estimators = rf_n_trees,criterion = rf_criterion,min_samples_split=rf_min_samples_split,max_features=rf_n_max_categories,max_samples = rf_max_samples)
-
-# random_forest_linear_velocity.fit(rin_train,rout_train)
-
-# robot_output_prediction = random_forest_linear_velocity.predict(rin_test)
-
-# from sklearn import metrics
-# print(metrics.accuracy_score(rout_test, robot_output_prediction))
+vlinear_disc, vlinear_se,vlinear_classes,vlinear_noelem = data_manipulation.dicretize_data(vlineear,disc_vlinear_range)
+vangular_disc, vangular_se,vangular_classes,vangular_noelem = data_manipulation.dicretize_data(vangular,disc_vangular_range)
 
 
+
+"""------------------------------------------------------------------------"""
+"""---------------------velocidade linear x angular------------------------"""
+
+vlinear = robot_output[robot_output.columns[0]].to_numpy()
+vangular = robot_output[robot_output.columns[1]].to_numpy()
+
+
+plt.plot(vlinear,vangular,'o',color='black')
+plt.title("velocidade linear x velocidade angular")
+plt.show()
+
+plt.plot(vangular,vlinear,'o',color='black')
+plt.title("velocidade angular x velocidade linear")
+plt.show()
+
+"""------------------------------------------------------------------------"""

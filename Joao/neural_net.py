@@ -20,6 +20,8 @@ Comentários:
 import pandas as pd
 
 data = pd.read_csv("DATASET_MobileRobotNav_FabroGustavo.csv")
+data.drop_duplicates(keep='first', inplace=True)
+data = data.reset_index(drop=True)
 # data = data.loc[data[data.columns[5]]==1]
 
 #separa as variáveis entre as de entrada (input) e saída (output) do robô
@@ -60,7 +62,7 @@ from sklearn.neural_network import MLPRegressor
 
 nn = MLPRegressor(solver='adam',activation='logistic',
                                     alpha = 0.00001,learning_rate = 'constant',
-                                    learning_rate_init=0.1,max_iter=10000,
+                                    learning_rate_init=0.1,max_iter=100000,
                                     hidden_layer_sizes = (7))
 
 nn.fit(rin_train,rout_train)
@@ -70,6 +72,10 @@ rout_pred = nn.predict(rin_test)
 
 from sklearn import metrics
 print(metrics.mean_squared_error(rout_test, rout_pred,squared=False))
+# from sklearn.metrics import mean_absolute_percentage_error
+print(metrics.mean_absolute_error(rout_test, rout_pred))
+
+
 
 # data_classes1 = data_manipulation.dicretize_data(rout_test,discretization_values)[2]
 # data_classes2 = data_manipulation.dicretize_data(rout_pred,discretization_values)[2]

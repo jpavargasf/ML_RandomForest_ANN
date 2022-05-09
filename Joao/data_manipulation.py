@@ -174,9 +174,78 @@ def split_data(data_input,data_output,n_classes,percentage):
     d2_in = pd.concat(d2_in)
     return d1_in,d1_out,d2_in,d2_out
         
+       
+import math
+def floor_with_residue(number,residue):
+    
+    floor_result = math.floor(number)
+    
+    new_residue = number - floor_result
+    
+    residue += new_residue
+    
+    if(residue>=1):
+        residue -= 1
+        floor_result += 1
+    
+    return floor_result,residue
+        
+import math
+import random
+import numpy as np
+"""
+data: dataframe que quer separar
+percentage: float [0,1] que indica a porcentagem de dados que ficará no 1º conjunto
+gap: inteiro que indica de quanto em quanto os dados serão agrupados
+
+**OBS: é necessário que data esteja com todos os indices desde 0 ao tamanho -1
+caso contrário não irá funcionar, a não ser que seja adicionada uma linha
+    data =  data.reset_index(drop=True)
+"""       
+def split_data_gap(data,percentage,gap):
+    
+    set1 = []
+    set2 = []
+    
+    index_initial = 0
+    
+    n_iterations = math.ceil(data.shape[0]/gap);
+    
+    size_n1 = percentage*gap
+    
+    residue = 0
+    
+    for i in range(n_iterations):
+        
+        index_final = index_initial + gap#não inclusivo
+        if(index_final > data.shape[0]):
+            index_final = data.shape[0]
+            
+        n1,residue = floor_with_residue(size_n1,residue);
         
         
+        # index_list = np.arange(index_initial,index_final)
+        index_list = list(range(index_initial,index_final))
         
+        j = 0
+        while(j<n1 and len(index_list)>0):
+            randn = random.randint(0,len(index_list)-1)
+            set1.append(index_list[randn])
+            index_list.pop(randn)
+            j+=1
+        while(len(index_list)>0):
+            set2.append(index_list[0])
+            index_list.pop(0)
+        
+        
+        index_initial += gap
+        
+    set1_data = data.iloc[set1]
+    set2_data = data.iloc[set2]   
+    
+    return set1_data,set2_data
+    
+           
         
         
         
