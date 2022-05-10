@@ -65,7 +65,7 @@ rmse = nn(data = data,
        gap = 5,
        n_iterations = 100,
        
-       hidden_layer_sizes = (20,20,20),#(10,10),#(20,20,20),#(50,50,50),
+       hidden_layer_sizes = (10,10),#(10,10),#(20,20,20),#(50,50,50),
        activation = 'relu',#'relu',
        learning_rate_init = 0.01,
        max_iter = 100000)

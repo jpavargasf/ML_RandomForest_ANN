@@ -165,7 +165,7 @@ rmse = rf_regressor(
     rf_min_impurity_decrease = 0.0
     )
 print(rmse)
-# data_train, data_test = data_manipulation.split_data_gap(data,percentage_training,gap)
+data_train, data_test = data_manipulation.split_data_gap(data,percentage_training,gap)
 
 rmse = rf_classifier(
     data = data,
