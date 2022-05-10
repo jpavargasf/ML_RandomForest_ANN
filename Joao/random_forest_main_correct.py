@@ -156,12 +156,12 @@ rmse = rf_regressor(
     data = data,
     percentage_training = 0.7,
     gap = 5,
-    n_iterations = 10,
+    n_iterations = 100,
     
     n_trees = 100,
     rf_max_depth = 5,
-    rf_min_samples_split = 3,
-    rf_min_samples_leaf = 3,
+    rf_min_samples_split = 4,
+    rf_min_samples_leaf = 2,
     rf_min_impurity_decrease = 0.0
     )
 print(rmse)
@@ -171,14 +171,14 @@ rmse = rf_classifier(
     data = data,
     percentage_training = 0.7,
     gap = 5,
-    n_iterations = 10,
+    n_iterations = 100,
     discretization_values0 = np.arange(0.05,1.05,0.1),
     discretization_values1 = np.arange(-0.9,1.1,0.1),
                   
     n_trees = 100,
-    rf_max_depth = 5,
-    rf_min_samples_split = 3,
-    rf_max_categories = 5,
+    rf_max_depth = 3,
+    rf_min_samples_split = 4,
+    rf_max_categories = 3,
     rf_criterion = 'entropy'
     
     

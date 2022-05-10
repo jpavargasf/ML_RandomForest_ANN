@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Mon May  9 23:51:28 2022
+
+@author: User
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Mon May  9 13:07:06 2022
 
 @author: User
@@ -10,42 +17,35 @@ import pandas as pd
 import numpy as np
 import data_manipulation
 from sklearn import metrics
+from sklearn.model_selection import train_test_split
 
 
-def nn(data,percentage_training,gap,
+def nn(data,percentage_training,
        n_iterations,
-       
-       hidden_layer_sizes,
-       activation,
-       learning_rate_init,
-       max_iter
+
        ):
     
-    mlpr = MLPRegressor(hidden_layer_sizes = hidden_layer_sizes,
-       activation = activation,
-       learning_rate_init = learning_rate_init,
-       max_iter = max_iter)
+    mlpr = MLPRegressor()
     
     mean_rmse = [0,0]
     # mean_rmse = 0
     
     for i in range(n_iterations):
         
-        data_train, data_test = data_manipulation.split_data_gap(data,percentage_training,gap)
+        X = data[data.columns[0:6]]
+        y = data[data.columns[6:8]]
         
-        data_train_in = data_train[data_train.columns[0:6]]
-        data_train_out = data_train[data_train.columns[6:8]]
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.3, random_state=42)   
         
-        data_test_in = data_test[data_test.columns[0:6]]
-        data_test_out = data_test[data_test.columns[6:8]]
         
-        mlpr.fit(data_train_in,data_train_out)
+        mlpr.fit(X_train,y_train)
         
-        pred = mlpr.predict(data_test_in)
+        pred = mlpr.predict(X_test)
         
         # rmset = metrics.mean_squared_error(data_test_out,pred,squared = True)
-        rmse0 = metrics.mean_squared_error(data_test_out[data_test_out.columns[0]],pred[:,0],squared = True)
-        rmse1 = metrics.mean_squared_error(data_test_out[data_test_out.columns[1]],pred[:,1],squared = True)
+        rmse0 = metrics.mean_squared_error(y_test[y_test.columns[0]],pred[:,0],squared = True)
+        rmse1 = metrics.mean_squared_error(y_test[y_test.columns[1]],pred[:,1],squared = True)
         
         mean_rmse = [mean_rmse[0] + rmse0, mean_rmse[1] + rmse1]
         
@@ -62,12 +62,8 @@ data = data.reset_index(drop=True)
 
 rmse = nn(data = data,
        percentage_training = 0.7,
-       gap = 5,
        n_iterations = 100,
        
-       hidden_layer_sizes = (20,20,20),#(10,10),#(20,20,20),#(50,50,50),
-       activation = 'relu',#'relu',
-       learning_rate_init = 0.01,
-       max_iter = 100000)
+  )
 
 print(rmse)
